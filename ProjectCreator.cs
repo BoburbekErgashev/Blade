@@ -29,24 +29,24 @@ namespace Program
                 Program.PrintError("Project name cannot be  empty!");
                 return false;
             }
-            string projectPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + projectName;
             if (templateName == null)
             {
-                UnzipTemplate("empty", projectPath);
+                UnzipTemplate("empty", projectName);
             }
             else
             {
-                UnzipTemplate(templateName, projectPath);
+                UnzipTemplate(templateName, projectName);
             }
             return true;
         }
 
-        static bool UnzipTemplate(string templateName, string extractPath)
+        static bool UnzipTemplate(string templateName, string projectName)
         {
-            string templatePath = AppContext.BaseDirectory + Path.DirectorySeparatorChar + templateName;
+            string projectPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + projectName;
+            string templatePath = AppContext.BaseDirectory + Path.DirectorySeparatorChar + templateName + ".zip";
             try
             {
-                ZipFile.ExtractToDirectory(templatePath, extractPath);
+                ZipFile.ExtractToDirectory(templatePath, projectPath);
             }
             catch (FileNotFoundException)
             {
