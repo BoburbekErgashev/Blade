@@ -15,9 +15,7 @@
                     ProjectCreator.CreateProject(args);
                     break;
                 default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Invalid operation: --{args[0]}--");
-                    Console.ResetColor();
+                    PrintError($"Invalid operation: --{args[0]}--");
                     return 2;
             }
             return 0;
@@ -26,6 +24,13 @@
         static void PrintInfo()
         {
             Console.WriteLine("INFO!");
+        }
+
+        public static void PrintError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine(message);
+            Console.ResetColor();
         }
     }
 }
