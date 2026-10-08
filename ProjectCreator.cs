@@ -7,6 +7,8 @@ namespace Program
     {
         public static bool CreateProject(string[] args)
         {
+            bool gg = Program.Confirmation("Dabbamisan", "fdf", "cdcd");
+            Console.WriteLine(gg);
             string? projectName = null;
             string? templateName = null;
             for (uint i = 1; i < args.Length; i++)
@@ -29,45 +31,46 @@ namespace Program
                 Program.PrintError("Project name cannot be  empty!");
                 return false;
             }
-            if (templateName == null)
-            {
-                UnzipTemplate("empty", projectName);
-            }
-            else
-            {
-                UnzipTemplate(templateName, projectName);
-            }
+            UnzipTemplate(templateName, projectName);
             return true;
         }
 
-        static bool UnzipTemplate(string templateName, string projectName)
+        static bool UnzipTemplate(string? templateName, string projectName)
         {
-            string projectPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + projectName;
-            string templatePath = AppContext.BaseDirectory + Path.DirectorySeparatorChar + templateName + ".zip";
-            try
+            string projectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectName));
+            string templateFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "templates"));
+
+            if (templateName == null)
             {
-                ZipFile.ExtractToDirectory(templatePath, projectPath);
+                return true;
             }
-            catch (FileNotFoundException)
+            else
             {
-                Program.PrintError($"Template {templateName} not found!");
-                return false;
-            }
-            catch (InvalidDataException)
-            {
-                Program.PrintError("Template file is corrupt or malformed!");
-                return false;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Program.PrintError("Missing read or write permissions!");
-                return false;
-            }
-            catch (Exception e)
-            {
-                Program.PrintError("Unknown error occured!");
-                Program.PrintError($"Message: {e.Message}");
-                return false;
+                try
+                {
+                    ZipFile.ExtractToDirectory(Path.Combine(templateFolderPath, "empty.zip"), projectPath);
+                }
+                catch (FileNotFoundException)
+                {
+                    Program.PrintError($"Template {templateName} not found!");
+                    return false;
+                }
+                catch (InvalidDataException)
+                {
+                    Program.PrintError("Template file is corrupt or malformed!");
+                    return false;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Program.PrintError("Missing read or write permissions!");
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    Program.PrintError("Unknown error occured!");
+                    Program.PrintError($"Message: {e.Message}");
+                    return false;
+                }
             }
             return true;
         }

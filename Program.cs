@@ -32,5 +32,37 @@
             Console.Error.WriteLine(message);
             Console.ResetColor();
         }
+
+        public static bool Confirmation(string question, params ReadOnlySpan<string> messages)
+        {
+            foreach (string m in messages)
+            {
+                Console.WriteLine(m);
+            }
+            Console.Write($"\n{question}? [y/N] : ");
+            byte repeat = 3;
+            for (byte i = 0; i < repeat; i++)
+            {
+                if (i != 0)
+                {
+                    Console.Write("Please answer with 'y' or 'n' | default [N]: ");
+                }
+                string? answer = Console.ReadLine();
+                if (answer == null)
+                {
+                    Console.Write("\n");
+                    return false;
+                }
+                if (answer == string.Empty)
+                {
+                    return false;
+                }
+                if (answer.Trim().ToLower() is "y" or "yes")
+                {
+                    return true;
+                }
+            }
+            return true;
+        }
     }
 }
