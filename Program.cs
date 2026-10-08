@@ -26,10 +26,13 @@
             Console.WriteLine("INFO!");
         }
 
-        public static void PrintError(string message)
+        public static void PrintError(params ReadOnlySpan<string> messages)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Error.WriteLine(message);
+            foreach (string m in messages)
+            {
+                Console.Error.WriteLine(m);
+            }
             Console.ResetColor();
         }
 

@@ -5,10 +5,10 @@ namespace Program
 {
     public class ProjectCreator
     {
+        static string templateFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "templates"));
+
         public static bool CreateProject(string[] args)
         {
-            bool gg = Program.Confirmation("Dabbamisan", "fdf", "cdcd");
-            Console.WriteLine(gg);
             string? projectName = null;
             string? templateName = null;
             for (uint i = 1; i < args.Length; i++)
@@ -31,6 +31,13 @@ namespace Program
                 Program.PrintError("Project name cannot be  empty!");
                 return false;
             }
+            if (projectName.Contains("/"))
+            {
+                if (!Program.Confirmation("Continue", "Project name contains slash('/') and will be interpreted as path"))
+                {
+                    return false;
+                }
+            }
             UnzipTemplate(templateName, projectName);
             return true;
         }
@@ -38,41 +45,81 @@ namespace Program
         static bool UnzipTemplate(string? templateName, string projectName)
         {
             string projectPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, projectName));
-            string templateFolderPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "templates"));
-
+            if (Directory.Exists(projectPath))
+            {
+                Program.PrintError("Project cannot be created:", $"Directory {projectPath} already exists!");
+                return false;
+            }
+            string templatePath;
             if (templateName == null)
             {
-                return true;
+                string? choosenTemplate = ChooseTemplate();
+                if (choosenTemplate == null)
+                {
+                    return false;
+                }
+                templatePath = choosenTemplate;
             }
             else
             {
-                try
-                {
-                    ZipFile.ExtractToDirectory(Path.Combine(templateFolderPath, "empty.zip"), projectPath);
-                }
-                catch (FileNotFoundException)
-                {
-                    Program.PrintError($"Template {templateName} not found!");
-                    return false;
-                }
-                catch (InvalidDataException)
-                {
-                    Program.PrintError("Template file is corrupt or malformed!");
-                    return false;
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Program.PrintError("Missing read or write permissions!");
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    Program.PrintError("Unknown error occured!");
-                    Program.PrintError($"Message: {e.Message}");
-                    return false;
-                }
+                templatePath = Path.Combine(templateFolderPath, templateName + ".zip");
+            }
+            try
+            {
+                ZipFile.ExtractToDirectory(templatePath, projectPath);
+            }
+            catch (FileNotFoundException)
+            {
+                Program.PrintError($"Template '{templateName}' not found!");
+                return false;
+            }
+            catch (Exception e)
+            {
+                Program.PrintError("An error occured!", $"Message: {e.Message}");
+                return false;
             }
             return true;
+        }
+        static string? ChooseTemplate()
+        {
+            string[] templatesList = Directory.GetFiles(templateFolderPath, "*.zip", SearchOption.AllDirectories);
+            if (templatesList.Length == 0)
+            {
+                Program.PrintError("No usable templates found!");
+                return null;
+            }
+            Console.WriteLine("Choose a template\n");
+            for (uint i = 0; i < templatesList.Length; i++)
+            {
+                Console.WriteLine($"[{i}] {Path.GetFileNameWithoutExtension(templatesList[i])}");
+            }
+            Console.Write("Write a template index | default [0]: ");
+            byte repeat = 3;
+            for (byte i = 0; i < repeat; i++)
+            {
+                if (i != 0)
+                {
+                    Console.Write("Please enter a valid index: ");
+                }
+                string? answer = Console.ReadLine();
+                if (answer == null)
+                {
+                    Console.Write("\n");
+                }
+                if (answer == string.Empty)
+                {
+                    return templatesList[0];
+                }
+                if (int.TryParse(answer, out int templateIndex))
+                {
+                    if (templateIndex >= 0 && templateIndex < templatesList.Length)
+                    {
+                        return templatesList[templateIndex];
+                    }
+                }
+            }
+            Console.WriteLine("Failed to select a template. Using default option");
+            return templatesList[0];
         }
     }
 }
