@@ -1,4 +1,7 @@
-﻿namespace Program
+﻿using System.Text;
+
+
+namespace Program
 {
     internal class Program
     {
@@ -66,6 +69,18 @@
                 }
             }
             return true;
+        }
+
+        public static string CreateCmakeVar(string varName, params ReadOnlySpan<string> values)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("set(").Append(varName);
+            foreach (string s in values)
+            {
+                builder.Append($" {s}");
+            }
+            builder.Append(")");
+            return builder.ToString();
         }
     }
 }
