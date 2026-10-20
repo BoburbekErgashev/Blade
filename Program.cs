@@ -7,6 +7,7 @@ namespace Program
     {
         static int Main(string[] args)
         {
+            bool isSucces;
             if (args.Length == 0)
             {
                 PrintInfo();
@@ -15,13 +16,23 @@ namespace Program
             switch (args[0].ToLower())
             {
                 case "new":
-                    ProjectCreator.CreateProject(args);
+                    isSucces = ProjectCreator.CreateProject(args);
+                    break;
+                case "install":
+                    isSucces = Installer.Install();
                     break;
                 default:
                     PrintError($"Invalid operation: --{args[0]}--");
-                    return 2;
+                    return 1;
             }
-            return 0;
+            if (isSucces)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
 
         static void PrintInfo()
