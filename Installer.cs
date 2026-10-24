@@ -14,7 +14,7 @@ namespace Program
             {
                 return false;
             }
-
+            string? localBinDir = getLocalBinPath();
         }
 
         private static string? getExecFullPath()
@@ -50,7 +50,7 @@ namespace Program
             }
             catch
             {
-                Program.PrintError("Failed to create symbolic link!");
+                Program.PrintError("Failed to fetch local bin directory!");
                 return null;
             }
         }
